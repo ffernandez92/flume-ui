@@ -231,6 +231,10 @@
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 	
+	function isEmpty(str) {
+	    return (!str || 0 === str.length);
+	}
+	
 	function addMetaType(type){
 			$("#"+type+"Group").append('<label class="col-sm-2 col-form-label"><b>'+capitalizeFirstLetter(type)+':</b></label>\
 					<input type="text" class="form-control" placeholder="" aria-label="'+capitalizeFirstLetter(type)+'" aria-describedby="basic-addon2"> \
@@ -249,10 +253,7 @@
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
 				printModalContent(responseJson["stored"],name,type);
 				$('#applicativename').val(responseJson["appname"]);
-				$('#fontname').val(responseJson["fontname"]);
-				if(responseJson["recursive"] == "1"){
-					$("#recuors").prop( "checked", true );
-				}
+				$('#numbOfSource').val(responseJson["numbOfSource"]);
 			}else if(type.indexOf("Channel") != -1){
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
 				printModalContent(responseJson["stored"],name,type);
@@ -275,6 +276,57 @@
 			});		
 		}
 		$('#myModal').modal('show'); 
+	}
+	
+	function saveContent(idresource){
+		var formLabel = [];
+		var formData = [];
+		var jsonContent = {};
+		var jsonContentSaved = {};
+		var jsonInterceptor = [];
+		var jsonSelector = [];
+		var i=0; 
+		var j=0;
+		//Common part
+		$('#formInfo').find('label').each(function() {
+				formLabel[i] = this.id;
+				i++;
+		});
+		$('#interceptorGroup').find('input').each(function() {
+			jsonInterceptor.push(this.value);
+		});
+		$('#selectorGroup').find('input').each(function() {
+			jsonSelector.push(this.value);
+		});
+		$('#formInfo').find('input').each(function() {
+			formData[j] = this.value;
+			j++;
+		});	
+		for(var k = 0; k < formData.length; k++){
+			if(!isEmpty(formLabel[k])){
+				jsonContent[formLabel[k]]=formData[k];
+			}
+		}
+		jsonContent["interceptors"] = jsonInterceptor;
+		jsonContent["selectors"] = jsonSelector;
+		if(idresource.indexOf("Source") !=-1) {
+			jsonContentSaved["appname"]=$('#applicativename').val();
+			jsonContentSaved["numbOfSource"]=$('#numbOfSource').val();
+			jsonContentSaved["stored"]=jsonContent;
+			if($('#'+idresource+'saved').length){
+				$('#'+idresource+'saved').remove();
+				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
+				
+			}else{
+				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>")
+			}
+		}else{
+			$('#'+idresource+'saved').remove();
+			jsonContentSaved["stored"]=jsonContent;
+			$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>")
+		}
+		
+		
 	}
 	
 	function printModalContent(responseJson,name,type,chnalCondition){
@@ -300,7 +352,7 @@
 					    </div>\
 					   </form>\
 					  </div> \
-					 <div class="col-sm-2"> \
+					 <div class="col-sm-4"> \
 					  	<div class="dropdown">\
 					  		<button class="btn btn-primary dropdown-toggle pull-right" type="button" data-toggle="dropdown">Channels\
 					  		<span class="caret"></span></button>\
@@ -322,13 +374,25 @@
 		
 		for (var prop in responseJson) {
 			if(prop.indexOf("interceptor") != -1){
-				$('#formInfo').append('<div id="interceptorGroup" class="input-group mb-3">\
-						<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
-						<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
-						    <div class="input-group-append"> \
-						   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
-						  	</div> \
-						</div>');	
+				$('#formInfo').append('<div id="interceptorGroup" class="input-group mb-3">');
+				if(responseJson[prop].length == 0){
+					$('#interceptorGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				for (var i = 0; i < responseJson[prop].length; i++) { 
+					$('#interceptorGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				$('#formInfo').append('</div>');
+	
 			}else if(prop.indexOf("selector") != -1){
 				$('#formInfo').append('<div id="selectorGroup" class="input-group mb-3">\
 						<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
