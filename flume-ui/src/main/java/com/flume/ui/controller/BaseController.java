@@ -18,7 +18,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.flume.ui.service.FlumeUiService;
 import com.google.gson.Gson;
 
-
+/**
+ * 
+ * @author ffernandez92
+ *
+ */
 @Controller
 public class BaseController {
     

@@ -7,7 +7,7 @@
 <html>
 <head>
 	<link rel="stylesheet" href="${root}css/bootstrap.min.css">
-	<!-- <link href="/bootstrap4-glyphicons/css/bootstrap-glyphicons.min.css" rel="stylesheet" type="text/css" />-->
+	<!--  <link href="/bootstrap4-glyphicons/css/bootstrap-glyphicons.min.css" rel="stylesheet" type="text/css" />-->
 	<script type="text/javascript" src="${root}js/jquery-1.12.4.slim.min.js"></script>
 	<script type="text/javascript" src="${root}js/popper.min.js"></script>
 	<script type="text/javascript" src="${root}js/bootstrap.min.js"></script>

@@ -110,7 +110,7 @@
 							break;
 					}
 
-					//If left_node is actually right side, following code will switch elements.
+					//If left_node is actually right side, following cod e will switch elements.
 					$(option.right_node).each(function(index, value) {
 						_left_node = $(option.left_node);
 						_right_node = $(value);
