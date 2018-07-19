@@ -153,6 +153,7 @@
 	var mySinks = {};
 	var mySVG = $('#innercanvas').connect();
 	
+	//Utils functions
 	function getUrl(type) {
 		var urlGo = "";
 		if(type.indexOf("Source") != -1){
@@ -197,6 +198,49 @@
 			});
 		}
 	}
+	
+	function getChannel(channel, source){
+		var name = channel.replace("Channel"," Channel");
+		if(myChannels[channel]){
+			var tmp = myChannels[channel];
+			myChannels[channel] = tmp+1;
+		}else{
+			myChannels[channel] = 1;
+		}
+		$("#innercanvas").prepend("<div id='"+(channel+myChannels[channel]).trim()+"' class='flumechannel'><center><a href='#' onclick='showModal("+'"'+channel.trim()+myChannels[channel]+'"'+");'>"+name+"</a></center></div>");
+		mySVG.drawLine({
+			left_node:'#'+source,
+			right_node:'#'+(channel+myChannels[channel]).trim(),
+			horizantal_gap:10,
+			error:true,
+			width:1
+		});
+
+		$("#"+(channel+myChannels[channel]).trim()).draggable({
+			containment: '#enginacars',  
+			drag: function(event, ui){mySVG.redrawLines();}
+		});
+		
+		$('#resultCInfo').html("<b>Success!:</b> New <b>"+name+"</b> created on canvas area.");
+		$('#resultCInfoPop').fadeIn();
+		$('#resultCInfoPop').fadeOut(2000);
+
+	}
+	
+	function capitalizeFirstLetter(string) {
+	    return string.charAt(0).toUpperCase() + string.slice(1);
+	}
+	
+	function addMetaType(type){
+			$("#"+type+"Group").append('<label class="col-sm-2 col-form-label"><b>'+capitalizeFirstLetter(type)+':</b></label>\
+					<input type="text" class="form-control" placeholder="" aria-label="'+capitalizeFirstLetter(type)+'" aria-describedby="basic-addon2"> \
+				    <div class="input-group-append"> \
+				   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+type+"'"+');return false;" type="button">+</button> \
+				  	</div> \
+				</div>');
+	}
+	
+	/////
 	
 	function showModal(type, chnalCondition){
 		var name = type.replace("Source", " Source").replace("Channel", " Channel").replace("Sink", " Sink").replace("Bean","").replace(/[0-9]/g, "");
@@ -248,13 +292,15 @@
 					<div class="row">\
 					 <div class="col-sm-9">\
 					   <form class="form-inline">\
-					    <div class="form-group">\
+					    <div class="form-group row">\
 					      <label><b>Agent Name:</b> &nbsp</label>\
 					      <input type="text" class="form-control input-sm" id="applicativename">\
+					      <label><b>&nbsp;&nbspNumber of sources:</b> &nbsp</label>\
+					      <input type="text" class="form-control input-sm" id="numbOfSource">\
 					    </div>\
 					   </form>\
 					  </div> \
-					  <div class="col-sm-3"> \
+					 <div class="col-sm-2"> \
 					  	<div class="dropdown">\
 					  		<button class="btn btn-primary dropdown-toggle pull-right" type="button" data-toggle="dropdown">Channels\
 					  		<span class="caret"></span></button>\
@@ -263,13 +309,10 @@
 					  </div>\
 					 </div>');
 			for (var i = 0; i < achannels.length; i++) {
-				$('#dropDChna').append('<li>\
-											<a href="#" onclick="getChannel('+"'"+achannels[i].replace(" Channel","Channel")+"'"+','+"'"+type+"'"+')">'+achannels[i]+'&nbsp;<span class="glyphicon glyphicon-plus"></span></a></li>');
+				$('#dropDChna').append('<li><a href="#" onclick="getChannel('+"'"+achannels[i].replace(" Channel","Channel")+"'"+','+"'"+type+"'"+')">'+achannels[i]+'&nbsp;<span class="glyphicon glyphicon-plus"></span></a></li>');
 			}
 			$('#contentInfo').append('</ul></div></div>');
-			$('#modalfooter').append('<div class="row"><div class="col-sm-5"><div class="checkbox pull-left">\
-					  <label><input id="recuors" name="recuors" type="checkbox" value="">Is recursive</label>\
-					</div></div>\
+			$('#modalfooter').append('<div class="row">\
 					<div class="col-sm-7"><button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button></div></div>');
 			
 			
@@ -279,20 +322,53 @@
 		
 		for (var prop in responseJson) {
 			if(prop.indexOf("interceptor") != -1){
-				$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+prop.replaceAll("_",".")+'">'+prop.replaceAll("_",".")+':</label><div class="col-sm-10"><input class="form-control" placeholder="e.g.: interceptor_name1>>(type=com.interceptor.Class$Builder||anotherprop=value);interceptor_name2>>(type=com.interceptor2.Class$Builder||anotherprop2=value2)" value="'+responseJson[prop]+'"></div></div>');	
+				$('#formInfo').append('<div id="interceptorGroup" class="input-group mb-3">\
+						<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
+						<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+						    <div class="input-group-append"> \
+						   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
+						  	</div> \
+						</div>');	
 			}else if(prop.indexOf("selector") != -1){
-				$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+prop.replaceAll("_",".")+'">'+prop.replaceAll("_",".")+':</label><div class="col-sm-10"><input class="form-control" placeholder="e.g.: type=selectortype||property1=value1||property2=value2" value="'+responseJson[prop]+'"></div></div>');	
+				$('#formInfo').append('<div id="selectorGroup" class="input-group mb-3">\
+						<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
+		  				<input type="text" class="form-control" placeholder="" aria-label="Selector" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+		  					<div class="input-group-append"> \
+		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
+		  					</div> \
+						</div>');	
 			}else if(prop.indexOf("converter") != -1){
-				$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+prop.replaceAll("_",".")+'">'+prop.replaceAll("_",".")+':</label><div class="col-sm-10"><input class="form-control" placeholder="e.g.: type=com.converter.Class$Builder||property1=value1||property2=value2" value="'+responseJson[prop]+'"></div></div>');	
+				$('#formInfo').append('<div id="converterGroup" class="input-group mb-3">\
+						<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
+		  				<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+		  					<div class="input-group-append"> \
+		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
+		  					</div> \
+						</div>');		
 			}else if(prop.indexOf("serializer") != -1){
-				$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+prop.replaceAll("_",".")+'">'+prop.replaceAll("_",".")+':</label><div class="col-sm-10"><input class="form-control" placeholder="e.g.: type=com.serializer.Class$Builder||property1=value1||property2=value2" value="'+responseJson[prop]+'"></div></div>');
+				$('#formInfo').append('<div id="serializerGroup" class="input-group mb-3">\
+						<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
+		  				<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+		  					<div class="input-group-append"> \
+		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
+		  					</div> \
+						</div>');
 			}else{
 				if(prop.indexOf("_ISMANDATORY") != -1){
 					var pprty = prop.replace("_ISMANDATORY","");
-					$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+pprty.replaceAll("_",".")+'"><u>'+pprty.replaceAll("_",".")+':</u></label><div class="col-sm-10"><input class="form-control" placeholder="" value="'+responseJson[prop]+'"></div></div>');
+					$('#formInfo').append('<div class="form-group row">\
+											<label class="col-sm-2 col-form-label" id="'+pprty+'"><u>'+pprty+':</u></label>\
+											 <div class="col-sm-10"> \
+												<input class="form-control" placeholder="" value="'+responseJson[prop]+'">\
+											 </div>\
+											</div>');
 				}else{
-					var pprty = prop.replaceAll("_u_","-");
-					$('#formInfo').append('<div class="form-group"><label class="control-label col-sm-2" id="'+pprty.replaceAll("_",".")+'">'+pprty.replaceAll("_",".")+':</label><div class="col-sm-10"><input class="form-control" placeholder="" value="'+responseJson[prop]+'"></div></div>');
+					$('#formInfo').append('<div class="form-group row">\
+											 <label class="col-sm-2 col-form-label" id="'+prop+'">'+prop+':</label> \
+											 <div class="col-sm-10">\
+											 	<input class="form-control" placeholder="" value="'+responseJson[prop]+'"> \
+											 </div>\
+											</div>');
 				}
 				
 			}

@@ -24,6 +24,8 @@ public class BaseController {
     
     private static final String FQN_SOURCE = "com.flume.ui.resource.source.";
     
+    private static final String FQN_CHANNEL = "com.flume.ui.resource.channel.";
+    
     @Resource
     private Gson gson;
     
@@ -44,6 +46,13 @@ public class BaseController {
     public String sourceModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
 		IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_SOURCE));
+    }
+    
+    @ResponseBody
+    @PostMapping(value = "/channel/modal")
+    public String channelModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
+		IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_CHANNEL));
     }
 
 }

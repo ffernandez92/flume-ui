@@ -121,15 +121,15 @@
 						}
 						
 						if((($("aside").width()*100)/screen.width) <= 4 ){
-							var proportionx = 0.31;
+							var proportionx = 0.34;
 						}else{
-							var proportionx = 0.4;
+							var proportionx = 0.3;
 						}
 
 						//Get Left point and Right Point
-						_left.x = (_left_node.offset().left-(screen.width*proportionx)) + _left_node.outerWidth();
+						_left.x = (_left_node.offset().left-(screen.width*proportionx))+30 + _left_node.outerWidth();
 						_left.y = (_left_node.offset().top-160) + (_left_node.outerHeight() / 2);
-						_right.x = _right_node.offset().left-(screen.width*proportionx);
+						_right.x = _right_node.offset().left-(screen.width*proportionx)+120;
 						_right.y = (_right_node.offset().top-160) + (_right_node.outerHeight() / 2);
 
 						//Create a group
