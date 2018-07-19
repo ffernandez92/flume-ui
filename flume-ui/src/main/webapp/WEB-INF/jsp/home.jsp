@@ -316,7 +316,7 @@
 					<div class="col-sm-7"><button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button></div></div>');
 			
 			
-		/*It is a channel element*/	
+		/*It is a channel element */	
 		}
 		
 		
