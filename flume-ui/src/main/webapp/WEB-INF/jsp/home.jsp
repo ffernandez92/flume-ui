@@ -31,8 +31,8 @@
 				width:100px; 
 				cursor:pointer;
 				padding:10px;
-				background: #f51021;
-  				border: 2px solid #f72838;
+				background: #ccff99;
+  				border: 2px solid #264d00;
   				border-radius: 5px;
  				color: #fff;
   				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -112,15 +112,18 @@
  			 <!-- Modal content-->
     			<div class="modal-content">
       				<div class="modal-header">
-		        <h4 id="modaltitle" class="modal-title"></h4>
-		        <div id="contentInfo" class="container"></div>
-		        <div>
-		          <hr></hr>
-		        	<div class="alert alert-success collapse" role="alert" id="resultCInfoPop">
-		        	   <span id="resultCInfo"></span>
-					</div>
-		        </div>
-		      </div>
+      					<div>
+		        			<h5 id="modaltitle" class="modal-title"></h5>
+		        			<hr style="height:1px; visibility:hidden;">
+		        			<div id="contentInfo" class="container"></div>
+		        		</div>
+		        		<div>
+		         			 <hr></hr>
+		        				<div class="alert alert-success collapse" role="alert" id="resultCInfoPop">
+		        	  				 <span id="resultCInfo"></span>
+								</div>
+		        		</div>
+		     		 </div>
 		      <div class="modal-body">
 		        <form class="form-horizontal">
 		           <div id="formInfo" class="form-group">
@@ -152,6 +155,18 @@
 	var myChannels = {};
 	var mySinks = {};
 	var mySVG = $('#innercanvas').connect();
+	
+	var channelHTML = '<div class="col-sm-12">\
+						<form class="form-inline">\
+							<div class="form-group">\
+								<label><b>Channel name:</b></label>&nbsp;&nbsp<input type="text" class="form-control input-sm" id="channelname">\
+							</div>\
+						<div class="col-sm-4 pull-right">\
+							<div class="dropdown">\
+								<button class="btn btn-primary dropdown-toggle pull-right" type="button" data-toggle="dropdown">Sinks<span class="caret"></span></button>\
+							<ul id="dropDSik" class="dropdown-menu">\
+						</div>\
+					</div>';
 	
 	//Utils functions
 	function getUrl(type) {
@@ -227,6 +242,34 @@
 
 	}
 	
+	function getSink(type, channelFrom){
+		   var name = type.replace("Sink", " Sink");
+			if(mySinks[type]){
+				var tmp = mySinks[type];
+				mySinks[type] = tmp+1;
+			}else{
+				mySinks[type] = 1;
+			}
+			$("#innercanvas").prepend("<div id='"+(type+mySinks[type]).trim()+"from"+channelFrom+"' class='flumesink'><b><a href='#' style='color: #000000;' onclick='showModal("+'"'+type+mySinks[type]+'"'+","+'"'+(type+mySinks[type]).trim()+"from"+channelFrom+'"'+");'><center>"+name+"</center></a></b></div>");
+			mySVG.drawLine({
+				left_node:'#'+channelFrom,
+				right_node:'#'+((type+mySinks[type]).trim()+"from"+channelFrom).trim(),
+				horizantal_gap:10,
+				error:true,
+				width:1
+			});
+
+			$( "#"+((type+mySinks[type]).trim()+"from"+channelFrom).trim() ).draggable({
+				containment: '#enginacars',  
+				drag: function(event, ui){mySVG.redrawLines();}
+			});
+			
+			$('#resultCInfo').html("<b>Success!:</b> New <b>"+name+"</b> created on canvas area.");
+			$('#resultCInfoPop').fadeIn();
+			$('#resultCInfoPop').fadeOut(2000);
+			
+	}
+	
 	function capitalizeFirstLetter(string) {
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
@@ -251,12 +294,12 @@
 		if($("#"+type.trim()+"saved").length || $("#"+chnalCondition+"saved").length){
 			if(type.indexOf("Source") != -1){
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
-				printModalContent(responseJson["stored"],name,type);
+				printModalContent(responseJson["stored"],name,type,"","");
 				$('#applicativename').val(responseJson["appname"]);
 				$('#numbOfSource').val(responseJson["numbOfSource"]);
 			}else if(type.indexOf("Channel") != -1){
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
-				printModalContent(responseJson["stored"],name,type);
+				printModalContent(responseJson["stored"],name,type,"");
 			}else if(type.indexOf("Sink") != -1){
 				var responseJson = JSON.parse($("#"+chnalCondition+"saved").text());
 				printModalContent(responseJson["stored"],name,type,chnalCondition);
@@ -329,11 +372,12 @@
 		
 	}
 	
-	function printModalContent(responseJson,name,type,chnalCondition){
+	function printModalContent(responseJson,name,type,channelFrom,resource){
 		$('#formInfo').empty();
 		$('#modaltitle').empty();
 		$('#contentInfo').empty();
 		$('#modalfooter').empty();
+		$('#modaltitle').html('<b><u>'+name+'</u></b>');
 		/*
 		* It is a Source element
 		*/
@@ -369,6 +413,17 @@
 			
 			
 		/*It is a channel element */	
+		}else if(name.indexOf("Channel") !=-1){
+			var asinks = '${stsinks}'.replace("[","").replace("]","").split(",");
+			$('#contentInfo').append(channelHTML);
+			for (var i = 0; i < asinks.length; i++) {
+				$('#dropDSik').append('<li><a href="#" onclick="getSink('+"'"+asinks[i].replace(" Sink","Sink")+"'"+','+"'"+type+"'"+')">'+asinks[i].replace("Bean","")+'&nbsp;<span class="glyphicon glyphicon-plus"></span></a></li>');
+			}
+			$('#contentInfo').append('</ul></div></div>');
+			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button>');
+		
+		}else if(name.indexOf("Sink") !=-1) {
+			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" onclick="saveContent('+"'"+channelFrom+"'"+');">Save</button>');
 		}
 		
 		
@@ -414,7 +469,7 @@
 						<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
 		  				<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
 		  					<div class="input-group-append"> \
-		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
+		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
 		  					</div> \
 						</div>');
 			}else{

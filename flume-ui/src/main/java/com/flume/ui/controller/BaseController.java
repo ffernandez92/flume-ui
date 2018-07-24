@@ -30,6 +30,8 @@ public class BaseController {
     
     private static final String FQN_CHANNEL = "com.flume.ui.resource.channel.";
     
+    private static final String FQN_SINKS = "com.flume.ui.resource.sink.";
+    
     @Resource
     private Gson gson;
     
@@ -40,8 +42,10 @@ public class BaseController {
     public String home(Map<String, Object> model) throws IOException {
 	List<String> sources = flmService.getSourceNames();
 	List<String> channels = flmService.getChannelNames();
+	List<String> sinks = flmService.getSinkNames();
 	model.put("stsources", sources);
 	model.put("stchannels", channels);
+	model.put("stsinks", sinks);
 	return "home";
     }
     
@@ -57,6 +61,13 @@ public class BaseController {
     public String channelModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
 		IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_CHANNEL));
+    }
+    
+    @ResponseBody
+    @PostMapping(value = "/sink/modal")
+    public String sinkModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
+			IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_SINKS));
     }
 
 }
