@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,14 @@ public class BaseController {
     public String sinkModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
 			IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_SINKS));
+    }
+    
+    @ResponseBody
+    @PostMapping(value = "/flume/config")
+    public String flumeConfig(final HttpServletResponse response, @RequestParam(required = false) String desinfo) throws UnsupportedEncodingException {
+	String decodeSource = URLDecoder.decode(desinfo, "UTF-8");
+	//TODO : Implements the Service Configuration
+	return decodeSource;
     }
 
 }

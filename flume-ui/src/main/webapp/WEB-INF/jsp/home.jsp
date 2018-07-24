@@ -138,11 +138,7 @@
 		
 		  </div>
 		</div>
-		<form style="display: none;" id="formularyPoster" action="${root}bigdata/flume/fileupload" method="post" enctype="multipart/form-data">
-				<input id="idfilech" type="file" name="file" />
-				<input id="submission" type="submit" value="Upload" />
-		</form>
-		<form  style="display: none;" id="formularyPoster2" action="${root}bigdata/flume/config" method="post">
+		<form  style="display: none;" id="formularyPoster2" action="${root}flume/config" method="post">
 				<input id="idfilech2" type="text" name="desinfo" />
 				<input id="submission2" type="submit" value="Upload" />
 		</form>
@@ -328,12 +324,20 @@
 		var jsonContentSaved = {};
 		var jsonInterceptor = [];
 		var jsonSelector = [];
+		var jsonConverter = [];
+		var jsonSerializer = [];
 		var i=0; 
 		var j=0;
 		//Common part
 		$('#formInfo').find('label').each(function() {
 				formLabel[i] = this.id;
 				i++;
+		});
+		$('#serializerGroup').find('input').each(function() {
+			jsonSerializer.push(this.value);
+		});
+		$('#converterGroup').find('input').each(function() {
+			jsonConverter.push(this.value);
 		});
 		$('#interceptorGroup').find('input').each(function() {
 			jsonInterceptor.push(this.value);
@@ -371,6 +375,21 @@
 		
 		
 	}
+	
+	function generateConfig(){
+		var jsonContent = {};
+		if($("#volatileMemory").children().length > 0){
+			for(var i = 0; i < $("#volatileMemory").children().length; i++){
+				jsonContent[$("#volatileMemory").children()[i].id]=JSON.parse($('#'+$("#volatileMemory").children()[i].id).text());
+			}
+		}
+		//SENDING REQUEST
+	
+		$('#idfilech2').val(JSON.stringify(jsonContent));
+		$('#submission2').click();	
+
+	}
+	
 	
 	function printModalContent(responseJson,name,type,channelFrom,resource){
 		$('#formInfo').empty();
@@ -423,7 +442,7 @@
 			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button>');
 		
 		}else if(name.indexOf("Sink") !=-1) {
-			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" onclick="saveContent('+"'"+channelFrom+"'"+');">Save</button>');
+			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+channelFrom+"'"+');">Save</button>');
 		}
 		
 		
