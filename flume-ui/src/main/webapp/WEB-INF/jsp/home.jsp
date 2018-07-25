@@ -356,6 +356,8 @@
 		}
 		jsonContent["interceptors"] = jsonInterceptor;
 		jsonContent["selectors"] = jsonSelector;
+		jsonContent["converters"] = jsonConverter;
+		jsonContent["serializers"] = jsonSerializer;
 		if(idresource.indexOf("Source") !=-1) {
 			jsonContentSaved["appname"]=$('#applicativename').val();
 			jsonContentSaved["numbOfSource"]=$('#numbOfSource').val();
@@ -447,7 +449,7 @@
 		
 		
 		for (var prop in responseJson) {
-			if(prop.indexOf("interceptor") != -1){
+			if(prop.indexOf("interceptor") != -1 && name.indexOf("Source") !=-1){
 				$('#formInfo').append('<div id="interceptorGroup" class="input-group mb-3">');
 				if(responseJson[prop].length == 0){
 					$('#interceptorGroup').append('\
@@ -467,30 +469,63 @@
 				}
 				$('#formInfo').append('</div>');
 	
-			}else if(prop.indexOf("selector") != -1){
-				$('#formInfo').append('<div id="selectorGroup" class="input-group mb-3">\
-						<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
-		  				<input type="text" class="form-control" placeholder="" aria-label="Selector" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
-		  					<div class="input-group-append"> \
-		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
-		  					</div> \
-						</div>');	
-			}else if(prop.indexOf("converter") != -1){
-				$('#formInfo').append('<div id="converterGroup" class="input-group mb-3">\
-						<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
-		  				<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
-		  					<div class="input-group-append"> \
-		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
-		  					</div> \
-						</div>');		
-			}else if(prop.indexOf("serializer") != -1){
-				$('#formInfo').append('<div id="serializerGroup" class="input-group mb-3">\
-						<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
-		  				<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
-		  					<div class="input-group-append"> \
-		   						 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
-		  					</div> \
-						</div>');
+			}else if(prop.indexOf("selector") != -1 && name.indexOf("Source") !=-1){
+				$('#formInfo').append('<div id="selectorGroup" class="input-group mb-3">');
+				if(responseJson[prop].length == 0){
+					$('#selectorGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				for (var i = 0; i < responseJson[prop].length; i++) { 
+					$('#selectorGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Selector" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				$('#formInfo').append('</div>');	
+			}else if(prop.indexOf("converter") != -1 && name.indexOf("Source") !=-1){
+				$('#formInfo').append('<div id="converterGroup" class="input-group mb-3">');
+				if(responseJson[prop].length == 0){
+					$('#converterGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				for (var i = 0; i < responseJson[prop].length; i++) { 
+					$('#converterGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				$('#formInfo').append('</div>');			
+			}else if(prop.indexOf("serializer") != -1 && name.indexOf("Sink") !=-1){
+				$('#formInfo').append('<div id="serializerGroup" class="input-group mb-3">');
+				if(responseJson[prop].length == 0){
+					$('#serializerGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				for (var i = 0; i < responseJson[prop].length; i++) {
+					$('#serializerGroup').append('\
+							<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
+							<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							    <div class="input-group-append"> \
+							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
+							  	</div>');
+				}
+				$('#formInfo').append('</div>');
 			}else{
 				if(prop.indexOf("_ISMANDATORY") != -1){
 					var pprty = prop.replace("_ISMANDATORY","");
