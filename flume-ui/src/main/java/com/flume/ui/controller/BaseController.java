@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -52,31 +53,32 @@ public class BaseController {
     
     @ResponseBody
     @PostMapping(value = "/source/modal")
-    public String sourceModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
+    public String sourceModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, 
 		IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_SOURCE));
+	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, StandardCharsets.UTF_8.name()),FQN_SOURCE));
     }
     
     @ResponseBody
     @PostMapping(value = "/channel/modal")
-    public String channelModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
+    public String channelModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, 
 		IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_CHANNEL));
+	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, StandardCharsets.UTF_8.name()),FQN_CHANNEL));
     }
     
     @ResponseBody
     @PostMapping(value = "/sink/modal")
-    public String sinkModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException, IllegalArgumentException,
+    public String sinkModal(@RequestParam(required = false) String source) throws UnsupportedEncodingException, ClassNotFoundException,
 			IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, "UTF-8"),FQN_SINKS));
+	return gson.toJson(flmService.getAttrib(URLDecoder.decode(source, StandardCharsets.UTF_8.name()),FQN_SINKS));
     }
     
     @ResponseBody
     @PostMapping(value = "/flume/config")
     public String flumeConfig(final HttpServletResponse response, @RequestParam(required = false) String desinfo) throws UnsupportedEncodingException {
-	String decodeSource = URLDecoder.decode(desinfo, "UTF-8");
+	String decodeSource = URLDecoder.decode(desinfo, StandardCharsets.UTF_8.name());
+	return flmService.getFlumeConfiguration(decodeSource);
 	//TODO : Implements the Service Configuration
-	return decodeSource;
+	//return decodeSource;
     }
 
 }

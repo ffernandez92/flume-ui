@@ -292,10 +292,11 @@
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
 				printModalContent(responseJson["stored"],name,type,"","");
 				$('#applicativename').val(responseJson["appname"]);
-				$('#numbOfSource').val(responseJson["numbOfSource"]);
+				//$('#numbOfSource').val(responseJson["numbOfSource"]);
 			}else if(type.indexOf("Channel") != -1){
 				var responseJson = JSON.parse($("#"+type.trim()+"saved").text());
 				printModalContent(responseJson["stored"],name,type,"");
+				$('#channelname').val(responseJson["channelname"]);
 			}else if(type.indexOf("Sink") != -1){
 				var responseJson = JSON.parse($("#"+chnalCondition+"saved").text());
 				printModalContent(responseJson["stored"],name,type,chnalCondition);
@@ -328,6 +329,7 @@
 		var jsonSerializer = [];
 		var i=0; 
 		var j=0;
+		var flag = true;
 		//Common part
 		$('#formInfo').find('label').each(function() {
 				formLabel[i] = this.id;
@@ -360,7 +362,7 @@
 		jsonContent["serializers"] = jsonSerializer;
 		if(idresource.indexOf("Source") !=-1) {
 			jsonContentSaved["appname"]=$('#applicativename').val();
-			jsonContentSaved["numbOfSource"]=$('#numbOfSource').val();
+			//jsonContentSaved["numbOfSource"]=$('#numbOfSource').val();
 			jsonContentSaved["stored"]=jsonContent;
 			if($('#'+idresource+'saved').length){
 				$('#'+idresource+'saved').remove();
@@ -369,12 +371,40 @@
 			}else{
 				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>")
 			}
+		}else if(idresource.indexOf("Channel") !=-1){
+			if($('#channelname').val() === ""){
+				$('#contentAdv').html("<b>Warning!</b>: Channel name can not be empty.")
+				$('#contentAdv').fadeIn();
+				$('#contentAdv').fadeOut(15000);
+			}else{
+				$('#'+idresource+'saved').remove();
+				$('#volatileMemory').children().each(function(i, elm) {	
+				    var innerJson = JSON.parse($(this).text());
+				    if(innerJson["channelname"]){
+				    	if(innerJson["channelname"].indexOf($('#channelname').val())!=-1){
+				    		$('#contentAdv').html("<b>Warning!</b>: Channel name can not be the same as another channel in canvas.")
+							$('#contentAdv').fadeIn();
+							$('#contentAdv').fadeOut(15000);
+							flag = false;
+				    	}else{
+				    		flag = true;
+				    	}
+				    }
+				});
+				if(flag){
+					$('#'+idresource+'saved').remove();
+					jsonContentSaved["channelname"]=$('#channelname').val();
+					jsonContentSaved["stored"]=jsonContent;
+					$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
+					$('#myModal').modal('hide');	
+				}
+		    }
 		}else{
-			$('#'+idresource+'saved').remove();
-			jsonContentSaved["stored"]=jsonContent;
-			$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>")
-		}
-		
+				$('#'+idresource+'saved').remove();
+				jsonContentSaved["stored"]=jsonContent;
+				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
+				$('#myModal').modal('hide');
+			}
 		
 	}
 	
@@ -412,8 +442,8 @@
 					    <div class="form-group row">\
 					      <label><b>Agent Name:</b> &nbsp</label>\
 					      <input type="text" class="form-control input-sm" id="applicativename">\
-					      <label><b>&nbsp;&nbspNumber of sources:</b> &nbsp</label>\
-					      <input type="text" class="form-control input-sm" id="numbOfSource">\
+					      <!--<label><b>&nbsp;&nbspNumber of sources:</b> &nbsp</label>\
+					      <input type="text" class="form-control input-sm" id="numbOfSource">-->\
 					    </div>\
 					   </form>\
 					  </div> \
