@@ -371,7 +371,7 @@
 			}else{
 				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>")
 			}
-		}else if(idresource.indexOf("Channel") !=-1){
+		}else if(idresource.indexOf("Channel") !=-1 && idresource.indexOf("Sink") ==-1){
 			if($('#channelname').val() === ""){
 				$('#contentAdv').html("<b>Warning!</b>: Channel name can not be empty.")
 				$('#contentAdv').fadeIn();
@@ -393,14 +393,23 @@
 				});
 				if(flag){
 					$('#'+idresource+'saved').remove();
-					jsonContentSaved["channelname"]=$('#channelname').val();
+					if($('#channelname')){
+					   jsonContentSaved["channelname"]=$('#channelname').val();	
+					}else{
+						var channName = idresource.split("from")[1].replace("saved","");
+						console.log(channName);
+						jsonContentSaved["channelname"]=$('#'+channName).val();
+					}
 					jsonContentSaved["stored"]=jsonContent;
 					$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
 					$('#myModal').modal('hide');	
 				}
 		    }
-		}else{
+		}else if(idresource.indexOf("Channel") !=-1 && idresource.indexOf("Sink") !=-1){
 				$('#'+idresource+'saved').remove();
+				var channName = idresource.split("from")[1];
+				var jsonChan = JSON.parse($('#'+channName+"saved").text());
+				jsonContentSaved["channelname"]=jsonChan.channelname;
 				jsonContentSaved["stored"]=jsonContent;
 				$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
 				$('#myModal').modal('hide');
@@ -504,7 +513,7 @@
 				if(responseJson[prop].length == 0){
 					$('#selectorGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.selector,value=a" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -512,7 +521,7 @@
 				for (var i = 0; i < responseJson[prop].length; i++) { 
 					$('#selectorGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Selector:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Selector" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.selector,value=a" aria-label="Selector" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'selector'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -523,7 +532,7 @@
 				if(responseJson[prop].length == 0){
 					$('#converterGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.converter,value=a" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -531,7 +540,7 @@
 				for (var i = 0; i < responseJson[prop].length; i++) { 
 					$('#converterGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Converter:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.converter,value=a" aria-label="Converter" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'converter'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -542,7 +551,7 @@
 				if(responseJson[prop].length == 0){
 					$('#serializerGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.serializer,value=a" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -550,7 +559,7 @@
 				for (var i = 0; i < responseJson[prop].length; i++) {
 					$('#serializerGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Serializer:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							<input type="text" class="form-control" placeholder="type=custom.serializer,value=a" aria-label="Serializer" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'serializer'+"'"+');return false;" type="button">+</button> \
 							  	</div>');

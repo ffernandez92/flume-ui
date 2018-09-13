@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.flume.ui.resource.util.FlumeResource;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -65,18 +66,42 @@ public class FlumeUiService {
 	
 	String flowName = innSource.get("appname").getAsString().trim();
 	
-	String sourceString = flowName + ".sources";
-	String channelString = flowName + ".channels";
+	String sourceString = "collector_" + flowName + ".sources";
+	String channelString = "collector_" + flowName + ".channels";
+	String sinkString = "processor_" + flowName + ".sinks";
 	
 	StringBuilder sourceBuilder = new StringBuilder(sourceString).append(EQUALS);
 	StringBuilder channelBuilder = new StringBuilder(channelString).append(EQUALS);
 	StringBuilder channelInformationBuilder = new StringBuilder();
 	
+	StringBuilder sinkBuilder = new StringBuilder(sinkString).append(EQUALS);
+	StringBuilder sinkInformationBuilder = new StringBuilder();
+	
+	
 	getCollectorConfig(jConfObj, channelName, innSource, flowName, sourceString, channelString, sourceBuilder,
 		channelBuilder, channelInformationBuilder);
-
 	
-	return sourceBuilder.append(channelBuilder).append(channelInformationBuilder).toString();
+	if(!sinkName.isEmpty() && !channelName.isEmpty()) {
+	    
+	    int i = 0;
+	    for(String sinkNam : sinkName) {
+		if(i == 0) {
+		    String relationChannel = jConfObj.get(sinkNam).getAsJsonObject().get("channelname").getAsString();
+		    sinkInformationBuilder.append(CR);
+		    sinkInformationBuilder.append(sinkString).append(DOT).append(sinkNam.toLowerCase().replace("saved", "")).append(DOT).append("channel = ").append(relationChannel).append(CR);  
+		}
+		String defSinkName = sinkNam.toLowerCase().replace("saved", "");
+		sinkBuilder.append(defSinkName).append(" ");
+		extractElements(jConfObj.get(sinkNam).getAsJsonObject(), defSinkName
+			    , sinkString, sinkInformationBuilder, SINKB);
+		i++;
+	    }
+	    
+	}
+	
+	System.out.println(sinkBuilder.toString() + sinkInformationBuilder.toString());
+	
+	return sourceBuilder.append(CR).append(channelBuilder).append(channelInformationBuilder).toString();
 
     }
 
@@ -99,11 +124,14 @@ public class FlumeUiService {
     private void getCollectorConfig(JsonObject jConfObj, List<String> channelName, JsonObject innSource,
 	    String flowName, String sourceString, String channelString, StringBuilder sourceBuilder,
 	    StringBuilder channelBuilder, StringBuilder channelInformationBuilder) {
-	for(String channNam : channelName) {
-	    channelBuilder.append(jConfObj.get(channNam).getAsJsonObject().get("channelname").getAsString()).append(" ");
-	    extractElements(jConfObj.get(channNam).getAsJsonObject(), jConfObj.get(channNam).getAsJsonObject().get("channelname").getAsString()
-		    , channelString, channelInformationBuilder, CHANNELB);
+	if(!channelName.isEmpty()) {
+		for(String channNam : channelName) {
+		    channelBuilder.append(jConfObj.get(channNam).getAsJsonObject().get("channelname").getAsString()).append(" ");
+		    extractElements(jConfObj.get(channNam).getAsJsonObject(), jConfObj.get(channNam).getAsJsonObject().get("channelname").getAsString()
+			    , channelString, channelInformationBuilder, CHANNELB);
+		}   
 	}
+
         sourceBuilder.append(flowName).append(SOURCEB).append(" "); 
         
 	extractElements(innSource, flowName, sourceString, sourceBuilder, SOURCEB);
@@ -112,19 +140,18 @@ public class FlumeUiService {
     private void extractElements(JsonObject innSource, String flowName, String sourceString,
 	    StringBuilder builder, String type) {
 	JsonObject sours = (JsonObject) innSource.get("stored");
-	 builder.append(CR);
 	   for (Map.Entry<String, JsonElement> entry : sours.entrySet()) {
 	       if ("serializers".equals(entry.getKey())) {
-		   
+		   buildConvSelectSerial(flowName, sourceString, builder, type, entry, "serializer");
 	       } else if ("converters".equals(entry.getKey())) {
-		   
+		   buildConvSelectSerial(flowName, sourceString, builder, type, entry, "converter");
 	       } else if ("interceptors".equals(entry.getKey())) {
-		   
+		 
 	       } else if ("selectors".equals(entry.getKey())) {
-		   
+		   buildConvSelectSerial(flowName, sourceString, builder, type, entry, "selector");
 	       } else {
 		   if (!"".equals(entry.getValue().getAsString())) {
-		       builder.append(sourceString).append(DOT)
+		       builder.append(CR).append(sourceString).append(DOT)
 		   .append(flowName);
 		    if(SOURCEB.equals(type)) {
 		     builder.append(type);
@@ -137,7 +164,28 @@ public class FlumeUiService {
 	   }
 	   builder.append(CR);
     }
-    
+
+    private void buildConvSelectSerial(String flowName, String sourceString, StringBuilder builder, String type,
+	    Map.Entry<String, JsonElement> entry, String flumeComponent) {
+	JsonArray jArr = entry.getValue().getAsJsonArray();
+	    for(int i = 0; i < jArr.size(); i++) {
+	     String name;  
+		if(SOURCEB.equals(type)) {
+		 name = flowName + type;
+		} else {
+		 name = flowName; 
+		}
+		String[] innerProp = jArr.get(i).getAsString().split(",");
+		for(int j = 0; j < innerProp.length; j++) {
+		 if(!"".equals(innerProp[j])) {
+		    builder.append(sourceString).append(DOT).append(name).append(DOT).append(flumeComponent).append(DOT);
+	            builder.append(innerProp[j]).append(CR);   
+	        } 
+	   }
+	}  
+    }
+
+
     /**
      * Returns a list element with all available <b>Source</b> Flume resources.
      * @return
