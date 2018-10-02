@@ -74,9 +74,9 @@ public class BaseController {
     
     @ResponseBody
     @PostMapping(value = "/flume/config")
-    public String flumeConfig(final HttpServletResponse response, @RequestParam(required = false) String desinfo) throws UnsupportedEncodingException {
+    public void flumeConfig(final HttpServletResponse response, @RequestParam(required = false) String desinfo) throws UnsupportedEncodingException {
 	String decodeSource = URLDecoder.decode(desinfo, StandardCharsets.UTF_8.name());
-	return flmService.getFlumeConfiguration(decodeSource);
+	flmService.getFlumeConfiguration(decodeSource);
 	//TODO : Implements the Service Configuration
 	//return decodeSource;
     }

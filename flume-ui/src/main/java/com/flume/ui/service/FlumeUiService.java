@@ -1,11 +1,17 @@
 package com.flume.ui.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -53,9 +59,11 @@ public class FlumeUiService {
     
     private static String CR = System.getProperty("line.separator");
     
+    private static final String FLUMEPATH = "flume";
+    
     private static final JsonParser jsonParser = new JsonParser();
     
-    public String getFlumeConfiguration(final String jsonConf) {
+    public void getFlumeConfiguration(final String jsonConf) {
 	JsonObject jConfObj = (JsonObject) jsonParser.parse(jsonConf);
 	String sourceName = null;
 	List<String> channelName = new ArrayList<>();
@@ -81,28 +89,64 @@ public class FlumeUiService {
 	getCollectorConfig(jConfObj, channelName, innSource, flowName, sourceString, channelString, sourceBuilder,
 		channelBuilder, channelInformationBuilder);
 	
-	if(!sinkName.isEmpty() && !channelName.isEmpty()) {
+	getProcessorConfig(jConfObj, channelName, sinkName, sinkString, sinkBuilder, sinkInformationBuilder);
+	
+	//System.out.println(sinkBuilder.toString() + sinkInformationBuilder.toString());
+	StringBuilder procSb = new StringBuilder();
+	writeConfigFile("collector_" + flowName, sourceBuilder.append(CR).append(channelBuilder.toString().replaceAll(".channels", ".sources."+flowName+"source.channels")).append(CR).append(channelBuilder).append(channelInformationBuilder).toString(),
+		"processor_" + flowName,
+		procSb.append(channelBuilder).append(channelInformationBuilder).toString().replaceAll("collector_" + flowName, "processor_" + flowName)
+		+ CR +sinkBuilder.toString() + sinkInformationBuilder.toString());
+	
+	//return sourceBuilder.append(CR).append(channelBuilder).append(channelInformationBuilder).toString();
+
+    }
+
+    private void writeConfigFile(String collectorName, String collector, String processorName, String processor) {
+	File f = new File(FLUMEPATH);
+	if(f.exists() && f.isDirectory()) {
+           if(f.delete()) {
+               writeConfigFile(collectorName, collector ,processorName , processor);
+           }
+	} else {
+	   File collectorPath = new File(FLUMEPATH + "/collector");
+	   File processorPath = new File(FLUMEPATH + "/processor");
+	   collectorPath.mkdirs();
+	   processorPath.mkdirs();
+	   try(FileOutputStream foSColl = new 
+		    FileOutputStream(FLUMEPATH + "/collector/" + "agent_"+collectorName+"-conf.properties");
+	      FileOutputStream foSProc = new 
+			    FileOutputStream(FLUMEPATH + "/processor/" + "agent_"+processorName+"-conf.properties")){
+	    byte[] contentInBytes = collector.getBytes();
+	    foSColl.write(contentInBytes);
+	    foSColl.flush();
 	    
-	    int i = 0;
+	    byte[] contentProcInBytes = processor.getBytes();
+	    foSProc.write(contentProcInBytes);
+	    foSProc.flush();
+	   } catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	  } catch (IOException e) {
+	    e.printStackTrace();
+	  }
+	}
+	
+    }
+
+    private void getProcessorConfig(JsonObject jConfObj, List<String> channelName, List<String> sinkName,
+	    String sinkString, StringBuilder sinkBuilder, StringBuilder sinkInformationBuilder) {
+	if(!sinkName.isEmpty() && !channelName.isEmpty()) {
 	    for(String sinkNam : sinkName) {
-		if(i == 0) {
 		    String relationChannel = jConfObj.get(sinkNam).getAsJsonObject().get("channelname").getAsString();
 		    sinkInformationBuilder.append(CR);
-		    sinkInformationBuilder.append(sinkString).append(DOT).append(sinkNam.toLowerCase().replace("saved", "")).append(DOT).append("channel = ").append(relationChannel).append(CR);  
-		}
+		    sinkInformationBuilder.append(sinkString).append(DOT).append(sinkNam.toLowerCase().replace("saved", "")).append(DOT).append("channel = ").append(relationChannel);  
 		String defSinkName = sinkNam.toLowerCase().replace("saved", "");
 		sinkBuilder.append(defSinkName).append(" ");
 		extractElements(jConfObj.get(sinkNam).getAsJsonObject(), defSinkName
 			    , sinkString, sinkInformationBuilder, SINKB);
-		i++;
 	    }
 	    
 	}
-	
-	System.out.println(sinkBuilder.toString() + sinkInformationBuilder.toString());
-	
-	return sourceBuilder.append(CR).append(channelBuilder).append(channelInformationBuilder).toString();
-
     }
 
     private String fillNames(JsonObject jConfObj, String sourceName, List<String> channelName, List<String> sinkName) {
@@ -162,7 +206,7 @@ public class FlumeUiService {
 	       }
 	       
 	   }
-	   builder.append(CR);
+
     }
 
     private void buildConvSelectSerial(String flowName, String sourceString, StringBuilder builder, String type,
@@ -266,7 +310,7 @@ public class FlumeUiService {
 			attr.put(property, field.getAnnotation(FlumeResource.class).value());
 
 		} else {
-			field.setAccessible(true);
+			field.setAccessible(Boolean.TRUE);
 			String property = field.getName();
 			String methodName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1, property.length());
 			Method method = clazz.getMethod(methodName, null);
