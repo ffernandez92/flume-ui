@@ -378,32 +378,21 @@
 				$('#contentAdv').fadeOut(15000);
 			}else{
 				$('#'+idresource+'saved').remove();
-				$('#volatileMemory').children().each(function(i, elm) {	
-				    var innerJson = JSON.parse($(this).text());
-				    if(innerJson["channelname"]){
-				    	if(innerJson["channelname"].indexOf($('#channelname').val())!=-1){
-				    		$('#contentAdv').html("<b>Warning!</b>: Channel name can not be the same as another channel in canvas.")
-							$('#contentAdv').fadeIn();
-							$('#contentAdv').fadeOut(15000);
-							flag = false;
-				    	}else{
-				    		flag = true;
-				    	}
-				    }
-				});
-				if(flag){
-					$('#'+idresource+'saved').remove();
+					//$('#'+idresource+'saved').remove();
 					if($('#channelname')){
 					   jsonContentSaved["channelname"]=$('#channelname').val();	
+					   console.log("first");
+					   console.log($('#channelname').val());
 					}else{
 						var channName = idresource.split("from")[1].replace("saved","");
+						console.log("second");
 						console.log(channName);
 						jsonContentSaved["channelname"]=$('#'+channName).val();
 					}
 					jsonContentSaved["stored"]=jsonContent;
 					$('#volatileMemory').append("<div id='"+idresource+'saved'+"' >"+JSON.stringify(jsonContentSaved)+"</div>");
 					$('#myModal').modal('hide');	
-				}
+				
 		    }
 		}else if(idresource.indexOf("Channel") !=-1 && idresource.indexOf("Sink") !=-1){
 				$('#'+idresource+'saved').remove();
