@@ -482,7 +482,7 @@
 				if(responseJson[prop].length == 0){
 					$('#interceptorGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
+							<input type="text" class="form-control" placeholder="interceptor_name->prop1=a,prop2=b;interceptor2->prop1=b" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
@@ -490,7 +490,7 @@
 				for (var i = 0; i < responseJson[prop].length; i++) { 
 					$('#interceptorGroup').append('\
 							<label class="col-sm-2 col-form-label"><b>Interceptor:</b></label>\
-							<input type="text" class="form-control" placeholder="" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
+							<input type="text" class="form-control" placeholder="interceptor_name->prop1=a,prop2=b;interceptor2->prop1=b" aria-label="Interceptor" aria-describedby="basic-addon2" value="'+responseJson[prop][i]+'"> \
 							    <div class="input-group-append"> \
 							   		 <button class="btn btn-outline-secondary" onclick="addMetaType('+"'"+'interceptor'+"'"+');return false;" type="button">+</button> \
 							  	</div>');
