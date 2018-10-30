@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.flume.ui.resource.builder.FlumeConfigBuilder;
 import com.flume.ui.resource.util.FlumeResource;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
 @Service
 public class FlumeUiService {
@@ -30,8 +28,6 @@ public class FlumeUiService {
     
     private static final String SINK_PATH = "com/flume/ui/resource/sink";
     
-    private static final String SOURCEB = "source";
-    
     private static final String SUFIX_SOURCE = "Source";
     
     private static final String SUFIX_CHANNEL = "Channel";
@@ -40,43 +36,9 @@ public class FlumeUiService {
     
     private static final String MANDATORY_FIELD = "_ISMANDATORY";
     
-    private static final String DOT = ".";
-    
-    private static String CR = System.getProperty("line.separator");
-    
     public Boolean getFlumeConfiguration(final String jsonConf) {
       return FlumeConfigBuilder.getInstance().writeConfigFile(jsonConf, Boolean.FALSE);
-    }
-    
-    /**
-     * 	TODO
-     * @param flowName
-     * @param sourceString
-     * @param builder
-     * @param type
-     * @param entry
-     * @param flumeComponent
-     */
-    private void buildConvSelectSerial(String flowName, String sourceString, StringBuilder builder, String type,
-	    Map.Entry<String, JsonElement> entry, String flumeComponent) {
-	JsonArray jArr = entry.getValue().getAsJsonArray();
-	    for(int i = 0; i < jArr.size(); i++) {
-	     String name;  
-		if(SOURCEB.equals(type)) {
-		 name = flowName + type;
-		} else {
-		 name = flowName; 
-		}
-		String[] innerProp = jArr.get(i).getAsString().split(",");
-		for(int j = 0; j < innerProp.length; j++) {
-		 if(!"".equals(innerProp[j])) {
-		    builder.append(sourceString).append(DOT).append(name).append(DOT).append(flumeComponent).append(DOT);
-	            builder.append(innerProp[j]).append(CR);   
-	        } 
-	   }
-	}  
-    }
-
+    }  
 
     /**
      * Returns a list element with all available <b>Source</b> Flume resources.

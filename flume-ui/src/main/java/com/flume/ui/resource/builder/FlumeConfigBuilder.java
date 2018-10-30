@@ -93,13 +93,15 @@ public class FlumeConfigBuilder {
       }
       collector.append(name + ".sources = " + sourcesList.toString()).append(CR);
       Channel chn = new Channel(name,jsonInput);
+      String chnStr = null;
       for(int i = minMax.get(0); i <= minMax.get(1); i++) {
 	 Source s = new Source(name,jsonInput,i + "flow");
 	 collector.append(s.getSource().getSourcePlainConfig());
-	 String chnStr = chn.getChannel().getChannels().toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "");
+	 chnStr = chn.getChannel().getChannels().toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "");
 	 collector.append(name + ".sources." + name + i +combo + CHANEQ + chnStr);
 	 collector.append(CR);
       }
+      collector.append(name + ".channels = " + chnStr).append(CR);
       collector.append(chn.getChannel().getChannelPlainConfig());
       fpm.setCollector(collector);
 
@@ -113,16 +115,17 @@ public class FlumeConfigBuilder {
       Map<String,List<String>> map = k.getSinks().getChannelsWithSinks();
       if(map != null) {
 	  for(String snks : sinksNames) {
-		  nameSinkSpace.append(map.get(snks.trim())
-			  .toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "")).append(" ");
-		  String[] sinksM = map.get(snks.trim()).toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").split(",");
-		  for(String sk : sinksM) {
-		    headSink.append(name+".sinks.").append(sk.trim()).append(".channel = ").append(snks.trim()).append(CR);    
-		  }
-		  
+	          if(map.containsKey(snks.trim())) {
+		    nameSinkSpace.append(map.get(snks.trim())
+				  .toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "")).append(" ");
+		    String[] sinksM = map.get(snks.trim()).toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").split(",");
+		    for(String sk : sinksM) {
+		      headSink.append(name+".sinks.").append(sk.trim()).append(".channel = ").append(snks.trim()).append(CR);    
+		    }   
+	          }
 	      }
 	      
-          String chnStr = chn.getChannel().getChannels().toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "");
+          chnStr = chn.getChannel().getChannels().toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").replace(",", "");
           processor.append(name + CHANEQ + chnStr).append(CR);
           processor.append(chn.getChannel().getChannelPlainConfig());
           processor.append(CR);
@@ -159,9 +162,12 @@ public class FlumeConfigBuilder {
 	    foSColl.write(contentInBytes);
 	    foSColl.flush();
 	    
-	    byte[] contentProcInBytes = fpm.getProcessor().toString().getBytes();
-	    foSProc.write(contentProcInBytes);
-	    foSProc.flush();
+	    StringBuilder confProcessor = fpm.getProcessor();
+	    if (confProcessor != null) {
+	      byte[] contentProcInBytes = confProcessor.toString().getBytes();
+	      foSProc.write(contentProcInBytes);
+              foSProc.flush();	
+	    }
 	    return Boolean.TRUE;
 	  } catch (FileNotFoundException e) {
 	    e.printStackTrace();

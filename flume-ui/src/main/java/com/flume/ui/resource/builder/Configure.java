@@ -78,11 +78,14 @@ public abstract class Configure {
 	 for(int i = 0; i < jArr.size(); i++) {
 	   String[] innerProp = jArr.get(i).getAsString().split(";");
 	   for(int j = 0; j < innerProp.length; j++) {
-	     String[] interC = innerProp[j].split("-\\>");   
-	     String[] propIternc = interC[1].split(",");
-	     for(int k = 0; k < propIternc.length; k++) {
-		addElement(intercepts, propIternc[k], interC[0]); 
+	     String[] interC = innerProp[j].split("-\\>");
+	     if(interC.length > 1) {
+		String[] propIternc = interC[1].split(",");
+		for(int k = 0; k < propIternc.length; k++) {
+		  addElement(intercepts, propIternc[k], interC[0]); 
+		} 
 	     }
+
 	   }
 	 }
 	 if(!intercepts.isEmpty()) {
