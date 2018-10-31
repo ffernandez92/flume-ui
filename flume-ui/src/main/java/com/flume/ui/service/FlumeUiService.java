@@ -91,7 +91,7 @@ public class FlumeUiService {
     }
     
     /**
-     * Having the class name and the package location, retrieves all possible attributes.
+     * Given the class name and the package location, retrieves all possible attributes.
      * @param className
      * @param fqn
      * @return
