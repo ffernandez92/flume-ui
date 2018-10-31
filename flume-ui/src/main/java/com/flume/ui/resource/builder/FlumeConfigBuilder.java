@@ -43,7 +43,9 @@ public class FlumeConfigBuilder {
        return instance;	
     }
     
-   
+    /**
+     * Get agent name from input JSON.
+     */
     private String getRawAppName(final String input) {
 	JsonObject flumeJSON = (JsonObject) jsonParser.parse(input);
 	for (Map.Entry<String, JsonElement> entry : flumeJSON.entrySet()) {
@@ -55,6 +57,12 @@ public class FlumeConfigBuilder {
 	return null;	
     }
     
+    /**
+     * Call the {@link #getRawAppName(String)} function and performs 
+     * a bracket clean.
+     * @param input
+     * @return
+     */
     private String getCleanAppName(final String input) {
       String rwName = getRawAppName(input);
       if(rwName != null) {
@@ -64,13 +72,28 @@ public class FlumeConfigBuilder {
       }
     }
     
+    /**
+     * Get the min and max number from [x-y] name of
+     * the agent.<br>
+     * The function calls {@link #getRawAppName(String)} to get the range.
+     * <hr>
+     * 
+     * <b>NOTE:</b> If the min number is 0, it is converted to 1.
+     * 
+     * @param input <b>JSON String</b>
+     * @return List where the first element is the min and the second is the max
+     */
     private List<Integer> getMinMax(final String input){
 	String name = getRawAppName(input);
 	List<Integer> minmax = new ArrayList<>();
 	if(name != null && name.contains(SQBRKLEFT) && name.contains("-")) {
 	  String numbers = name.split("\\"+SQBRKRIGHT)[1];
 	  numbers = numbers.replace(SQBRKLEFT, "");
-	  minmax.add(Integer.parseInt(numbers.split("-")[0].trim()));
+	  Integer start = Integer.parseInt(numbers.split("-")[0].trim());
+	  if(start == 0) {
+	    start = 1;    
+	  }
+	  minmax.add(start);
 	  minmax.add(Integer.parseInt(numbers.split("-")[1].trim()));
 	} else {
 	  minmax.add(1);
@@ -79,7 +102,14 @@ public class FlumeConfigBuilder {
 	return minmax;
     }
     
-    
+    /**
+     * Entry point to build Flume configuration
+     * The function calls two inner functions
+     * <br>{@link #getCollector(String, FilePropModel, String, List, StringBuilder, String, Channel)}
+     * <br>{@link #getProcessor(String, FilePropModel, String, StringBuilder, Channel)}
+     * @param jsonInput
+     * @return
+     */
     private FilePropModel getConfiguration(final String jsonInput) {
 	FilePropModel fpm = new FilePropModel();
 	String name = getCleanAppName(jsonInput);
@@ -96,6 +126,26 @@ public class FlumeConfigBuilder {
 	}
 	collector.append(name + ".sources = " + sourcesList.toString()).append(CR);
 	Channel chn = new Channel(name, jsonInput);
+	getCollector(jsonInput, fpm, name, minMax, collector, combo, chn);
+
+	name = name + "processor";
+	getProcessor(jsonInput, fpm, name, processor, chn);
+
+	return fpm;
+    }
+
+    /**
+     * Fills the FilePropModel with the name and collector configuration.
+     * @param jsonInput
+     * @param fpm
+     * @param name
+     * @param minMax
+     * @param collector
+     * @param combo
+     * @param chn
+     */
+    private void getCollector(final String jsonInput, FilePropModel fpm, String name, List<Integer> minMax,
+	    StringBuilder collector, String combo, Channel chn) {
 	String chnStr = null;
 	for (int i = minMax.get(0); i <= minMax.get(1); i++) {
 	    Source s = new Source(name, jsonInput, i + "flow");
@@ -112,8 +162,19 @@ public class FlumeConfigBuilder {
 	    collector.append(chn.getChannel().getChannelPlainConfig());
 	}
 	fpm.setCollector(collector);
+    }
 
-	name = name + "processor";
+    /**
+     * Fills the FilePropModel with the processor configuration.
+     * @param jsonInput
+     * @param fpm
+     * @param name
+     * @param processor
+     * @param chn
+     */
+    private void getProcessor(final String jsonInput, FilePropModel fpm, String name, StringBuilder processor,
+	    Channel chn) {
+	String chnStr;
 	List<String> lstChans = chn.getChannel().getChannels();
 	if (lstChans != null) {
 	    String[] sinksNames = lstChans.toString().replace(SQBRKRIGHT, "").replace(SQBRKLEFT, "").trim().split(",");
@@ -149,10 +210,17 @@ public class FlumeConfigBuilder {
 		fpm.setProcessor(processor);
 	    }
 	}
-
-	return fpm;
     }
    
+   /**
+    * Generate the folders and configuration files of the described in
+    * the JSON input.
+    * <br>
+    * It calls the function {@link #getConfiguration(String)} to build the <b>FilePropModel</b>
+    * @param input
+    * @param flag
+    * @return True if the configuration has been generated successfully False otherwise.
+    */
    public Boolean writeConfigFile(final String input, Boolean flag) {
        FilePropModel fpm = getConfiguration(input);
        String name = fpm.getName();
