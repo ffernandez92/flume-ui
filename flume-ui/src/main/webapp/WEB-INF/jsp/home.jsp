@@ -414,10 +414,24 @@
 			}
 		}
 		//SENDING REQUEST
-	
-		$('#idfilech2').val(JSON.stringify(jsonContent));
-		$('#submission2').click();	
+		if(isEmptyJson(jsonContent) || JSON.stringify(jsonContent).indexOf("\"appname\":\"\"") != -1){
+		  $('#resultWInfoIn').html("<b>Warning!</b>: You cannot generate a config from an empty canvas or from a no name agent.")
+		  $('#resultWInfo').fadeIn();
+		  $('#resultWInfo').fadeOut(15000);
+		} else {
+		  $('#idfilech2').val(JSON.stringify(jsonContent));
+		  $('#submission2').click();		
+		}
 
+	}
+	
+	function isEmptyJson(obj) {
+	    for(var prop in obj) {
+	        if(obj.hasOwnProperty(prop))
+	            return false;
+	    }
+
+	    return JSON.stringify(obj) === JSON.stringify({});
 	}
 	
 	
@@ -439,9 +453,7 @@
 					   <form class="form-inline">\
 					    <div class="form-group row">\
 					      <label><b>Agent Name:</b> &nbsp</label>\
-					      <input type="text" class="form-control input-sm" id="applicativename">\
-					      <!--<label><b>&nbsp;&nbspNumber of sources:</b> &nbsp</label>\
-					      <input type="text" class="form-control input-sm" id="numbOfSource">-->\
+					      <input type="text" placeholder="name or name[1-X] multiple" class="form-control input-sm" id="applicativename">\
 					    </div>\
 					   </form>\
 					  </div> \
