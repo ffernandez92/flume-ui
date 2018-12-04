@@ -95,6 +95,18 @@
                         <div class="card card-primary">
 							<div class="card-header">
 								<center><h6><b>Configuration canvas</b></h6></center>
+								<div class="dropdown pull-right">
+  									<button class="btn btn-primary float-right dropdown-toggle" type="button"
+										data-toggle="dropdown">Canvas Loader
+  										<span class="caret"></span>
+									</button>
+  										<ul class="dropdown-menu">
+    										<li><a href="#" onclick="saveCanvas();return false;">Save Canvas</a></li>
+    										<!-- 
+    										TODO - It must be implemented
+    										<li><a href="#" onclick="triggerSubmit();false;">Load Canvas from JSON</a></li> -->
+  										</ul>
+								</div>
 							</div>
 							<div class="alert alert-danger collapse" role="alert" id="resultWInfo">
 		        	   			<span id="resultWInfoIn"></span>
@@ -139,8 +151,12 @@
 		  </div>
 		</div>
 		<form  style="display: none;" id="formularyPoster2" action="${root}flume/config" method="post">
-				<input id="idfilech2" type="text" name="desinfo" />
-				<input id="submission2" type="submit" value="Upload" />
+			<input id="idfilech2" type="text" name="desinfo" />
+			<input id="submission2" type="submit" value="Upload" />
+		</form>
+		<form style="display: none;" id="formularyPoster" action="${root}flume/fileupload" method="post" enctype="multipart/form-data">
+			<input id="idfilech" type="file" name="file" />
+			<input id="submission" type="submit" value="Upload" />
 		</form>
       	
       	<div id="volatileMemory" style="display:none"></div>
@@ -432,6 +448,31 @@
 	    }
 
 	    return JSON.stringify(obj) === JSON.stringify({});
+	}
+	
+	function triggerSubmit(){
+		$("#idfilech").click();
+	}
+	
+	function saveCanvas(){
+		var jsonContent = {};
+		var jsonMetainf = {};
+		if($("#volatileMemory").children().length > 0){
+			for(var i = 0; i < $("#volatileMemory").children().length; i++){
+				jsonContent[($("#volatileMemory").children()[i].id)]=JSON.parse($('#'+$("#volatileMemory").children()[i].id).text());
+			}
+			for (var prop in jsonContent) {
+				jsonMetainf[prop.replace("saved","")]={"left":$("#"+prop.replace("saved","")).css("left"),"top":$("#"+prop.replace("saved","")).css("top")};
+			}	
+		}
+		var metadata = [jsonContent,jsonMetainf];
+		 $("<a />", {
+			    "download": "flume_canvas.json",
+			    "href" : "data:application/json," + encodeURIComponent(JSON.stringify(metadata))
+			  }).appendTo("body")
+			  .click(function() {
+			     $(this).remove()
+			  })[0].click()
 	}
 	
 	

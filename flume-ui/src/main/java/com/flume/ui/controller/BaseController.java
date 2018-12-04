@@ -1,5 +1,6 @@
 package com.flume.ui.controller;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.flume.ui.service.FlumeUiService;
 import com.google.gson.Gson;
@@ -102,6 +104,21 @@ public class BaseController {
 	}
     }
     
+    @ResponseBody
+    @PostMapping("/flume/fileupload")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+	StringBuilder sb = new StringBuilder();
+	if (file.getOriginalFilename().contains(".json")) {
+	    BufferedInputStream bin = new BufferedInputStream(file.getInputStream());
+	    int b;
+	    while ((b = bin.read()) != -1) {
+		sb.append("" + Character.toString((char) b));
+	    }
+	    bin.close();
+	} 
+	return sb.toString();
+    }
+
     private byte[] gettingStream() {
       try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 	 try (ZipOutputStream zout = new ZipOutputStream(bos)) {
