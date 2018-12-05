@@ -67,7 +67,24 @@
         <li class="nav-item active">
           <a class="nav-link" href="#">Flume UI Configuration <span class="sr-only">(current)</span></a>
         </li>
-      </ul>
+        <li class="nav-item">
+         <span><b> || </b>&nbsp;</span>
+        </li>
+		<li class="nav-item">
+				<div class="dropdown pull-right">
+						<button class="btn btn-primary float-right dropdown-toggle"
+							type="button" data-toggle="dropdown">
+							Canvas Loader <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a href="#" onclick="saveCanvas();return false;">Save
+									Canvas</a></li>
+				<li><a href="#" onclick="triggerSubmit();false;">Load
+					Canvas from JSON</a></li>
+				</ul>
+			</div>
+		  </li>
+		</ul>
     </div>
   </nav>
   <hr style="height:1pt; visibility:hidden;" />
@@ -95,18 +112,7 @@
                         <div class="card card-primary">
 							<div class="card-header">
 								<center><h6><b>Configuration canvas</b></h6></center>
-								<div class="dropdown pull-right">
-  									<button class="btn btn-primary float-right dropdown-toggle" type="button"
-										data-toggle="dropdown">Canvas Loader
-  										<span class="caret"></span>
-									</button>
-  										<ul class="dropdown-menu">
-    										<li><a href="#" onclick="saveCanvas();return false;">Save Canvas</a></li>
-    										<!-- 
-    										TODO - It must be implemented
-    										<li><a href="#" onclick="triggerSubmit();false;">Load Canvas from JSON</a></li> -->
-  										</ul>
-								</div>
+
 							</div>
 							<div class="alert alert-danger collapse" role="alert" id="resultWInfo">
 		        	   			<span id="resultWInfoIn"></span>
@@ -234,7 +240,7 @@
 		}else{
 			myChannels[channel] = 1;
 		}
-		$("#innercanvas").prepend("<div id='"+(channel+myChannels[channel]).trim()+"' class='flumechannel'><center><a href='#' onclick='showModal("+'"'+channel.trim()+myChannels[channel]+'"'+");'>"+name+"</a></center></div>");
+		$("#innercanvas").prepend("<div id='"+(channel+myChannels[channel]).trim()+"' class='flumechannel'><center><a href='#' onclick='showModal("+'"'+channel.trim()+myChannels[channel]+'"'+");return false;'>"+name+"</a></center></div>");
 		mySVG.drawLine({
 			left_node:'#'+source,
 			right_node:'#'+(channel+myChannels[channel]).trim(),
@@ -262,7 +268,7 @@
 			}else{
 				mySinks[type] = 1;
 			}
-			$("#innercanvas").prepend("<div id='"+(type+mySinks[type]).trim()+"from"+channelFrom+"' class='flumesink'><b><a href='#' style='color: #000000;' onclick='showModal("+'"'+type+mySinks[type]+'"'+","+'"'+(type+mySinks[type]).trim()+"from"+channelFrom+'"'+");'><center>"+name+"</center></a></b></div>");
+			$("#innercanvas").prepend("<div id='"+(type+mySinks[type]).trim()+"from"+channelFrom+"' class='flumesink'><b><a href='#' style='color: #000000;' onclick='showModal("+'"'+type+mySinks[type]+'"'+","+'"'+(type+mySinks[type]).trim()+"from"+channelFrom+'"'+");return false;'><center>"+name+"</center></a></b></div>");
 			mySVG.drawLine({
 				left_node:'#'+channelFrom,
 				right_node:'#'+((type+mySinks[type]).trim()+"from"+channelFrom).trim(),
@@ -511,7 +517,7 @@
 			}
 			$('#contentInfo').append('</ul></div></div>');
 			$('#modalfooter').append('<div class="row">\
-					<div class="col-sm-7"><button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button></div></div>');
+					<div class="col-sm-7"><button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');return false;">Save</button></div></div>');
 			
 			
 		/*It is a channel element */	
@@ -522,10 +528,10 @@
 				$('#dropDSik').append('<li><a href="#" onclick="getSink('+"'"+asinks[i].replace(" Sink","Sink")+"'"+','+"'"+type+"'"+')">'+asinks[i].replace("Bean","")+'&nbsp;<span class="glyphicon glyphicon-plus"></span></a></li>');
 			}
 			$('#contentInfo').append('</ul></div></div>');
-			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');">Save</button>');
+			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+type.trim()+"'"+');return false;">Save</button>');
 		
 		}else if(name.indexOf("Sink") !=-1) {
-			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+channelFrom+"'"+');">Save</button>');
+			$('#modalfooter').append('<button type="button" class="btn-lg btn-primary pull-right" data-dismiss="modal" onclick="saveContent('+"'"+channelFrom+"'"+');return false;">Save</button>');
 		}
 		
 		
