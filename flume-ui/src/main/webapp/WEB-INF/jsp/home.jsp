@@ -198,6 +198,9 @@
     	});
 	});
 	$('form').submit(function(e) {
+		if(($(this).attr('id')).indexOf("formularyPoster2") != -1){
+			 $(this).unbind('submit').submit()
+		}else{
 		 e.preventDefault();
 		    $.ajax( {
 		        url: "${root}flume/fileupload",
@@ -239,6 +242,7 @@
 		    		}
 		    	}
 		    });
+	}
 	  
 	});
 	
