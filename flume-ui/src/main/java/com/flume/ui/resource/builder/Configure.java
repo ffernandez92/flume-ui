@@ -47,6 +47,14 @@ public abstract class Configure {
  	return result;
     }
     
+    /**
+     * Get all possible combination of elements present on Flume configuration
+     *  
+     * @param elems
+     * @param conf
+     * @param constantPrefix
+     * @param suffix
+     */
     public void extractElements(JsonObject elems, StringBuilder conf, String constantPrefix, String suffix) {
 	int i = 0;
 	for (Map.Entry<String, JsonElement> entry : elems.entrySet()) {
@@ -75,30 +83,8 @@ public abstract class Configure {
        JsonArray jArr = entry.getValue().getAsJsonArray();
        if (type.equalsIgnoreCase("interceptors")) {
 	 Map<String, List<String>> intercepts = new HashMap<>();  
-	 for(int i = 0; i < jArr.size(); i++) {
-	   String[] innerProp = jArr.get(i).getAsString().split(";");
-	   for(int j = 0; j < innerProp.length; j++) {
-	     String[] interC = innerProp[j].split("-\\>");
-	     if(interC.length > 1) {
-		String[] propIternc = interC[1].split(",");
-		for(int k = 0; k < propIternc.length; k++) {
-		  addElement(intercepts, propIternc[k], interC[0]); 
-		} 
-	     }
-
-	   }
-	 }
-	 if(!intercepts.isEmpty()) {
-	   conf.append(prev + type + " = ");  
-	   conf.append(intercepts.keySet().toString().replace("[", "").replace("]", "").replace(",", " ")).append(CR);
-	   
-	   for (Map.Entry<String, List<String>> props : intercepts.entrySet()) {
-	     for(String innP: props.getValue()) {
-	      conf.append(prev + type + DOT).append(props.getKey()).append(DOT).append(innP).append(CR);	 
-	     }
-	   }
-	   
-	 }
+	 buildIntercepts(jArr, intercepts);
+	 parseIntercepts(type, conf, prev, intercepts);
        } else {
 	 for(int i = 0; i < jArr.size(); i++) {
 	   String[] innerProp = jArr.get(i).getAsString().split(",");
@@ -111,6 +97,36 @@ public abstract class Configure {
 	 }   
        }
        
+    }
+
+    private void buildIntercepts(JsonArray jArr, Map<String, List<String>> intercepts) {
+	for(int i = 0; i < jArr.size(); i++) {
+	   String[] innerProp = jArr.get(i).getAsString().split(";");
+	   for(int j = 0; j < innerProp.length; j++) {
+	     String[] interC = innerProp[j].split("-\\>");
+	     if(interC.length > 1) {
+		String[] propIternc = interC[1].split(",");
+		for(int k = 0; k < propIternc.length; k++) {
+		  addElement(intercepts, propIternc[k], interC[0]); 
+		} 
+	     }
+
+	   }
+	 }
+    }
+
+    private void parseIntercepts(String type, StringBuilder conf, String prev, Map<String, List<String>> intercepts) {
+	if(!intercepts.isEmpty()) {
+	   conf.append(prev + type + " = ");  
+	   conf.append(intercepts.keySet().toString().replace("[", "").replace("]", "").replace(",", " ")).append(CR);
+	   
+	   for (Map.Entry<String, List<String>> props : intercepts.entrySet()) {
+	     for(String innP: props.getValue()) {
+	      conf.append(prev + type + DOT).append(props.getKey()).append(DOT).append(innP).append(CR);	 
+	     }
+	   }
+	   
+	 }
     }
     
     private void addElement(Map<String,List<String>> map, String element, String key) {

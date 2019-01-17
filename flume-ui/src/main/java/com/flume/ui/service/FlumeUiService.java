@@ -42,6 +42,10 @@ public class FlumeUiService {
 
     /**
      * Returns a list element with all available <b>Source</b> Flume resources.
+     * 
+     * It uses the {@link #getResourcesName(String) getResources} function in order to list
+     * all the possible elements in the package.
+     * 
      * @return
      * @throws IOException
      */
@@ -51,6 +55,10 @@ public class FlumeUiService {
 
     /**
      * Returns a list element with all available <b>Channel</b> Flume resources.
+     * 
+     * It uses the {@link #getResourcesName(String) getResources} function in order to list
+     * all the possible elements in the package.
+     * 
      * @return
      * @throws IOException
      */
@@ -60,6 +68,10 @@ public class FlumeUiService {
 
     /**
      * Returns a list element with all available <b>Sink</b> Flume resources.
+     * 
+     * It uses the {@link #getResourcesName(String) getResources} function in order to list
+     * all the possible elements in the package.
+     * 
      * @return
      * @throws IOException
      */
@@ -67,7 +79,13 @@ public class FlumeUiService {
 	return getResourcesName(SINK_PATH);
     }
 
-    
+    /**
+     * Given a package location, list all the classes that are inside the given package.
+     * 
+     * @param packageName
+     * @return
+     * @throws IOException
+     */
     private List<String> getResourcesName(final String packageName) throws IOException {
 	final List<String> resourcesNames = new ArrayList<>();
 	final Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(packageName);
@@ -107,7 +125,18 @@ public class FlumeUiService {
 	return showField(cls);
     }
     
-    private Map<String, Object> showField(Class clazz) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    /**
+     * Iterates over the class fields in order to get the attributes based on
+     * Flume notations.
+     *  
+     * @param clazz
+     * @return
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     */
+    private Map<String, Object> showField(Class<?> clazz) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 	Map<String, Object> attr = new LinkedHashMap<>();
 	for (Field field : clazz.getDeclaredFields()) {
 		if (field.isAnnotationPresent(FlumeResource.class)) {
